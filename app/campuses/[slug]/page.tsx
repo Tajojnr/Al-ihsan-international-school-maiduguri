@@ -10,8 +10,27 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const supabase = await createClient();
+
+  const { data: campus } = await supabase
+    .from("campuses")
+    .select("name, description, address")
+    .eq("slug", slug)
+    .single();
+
+  const title = campus?.name || `Campus: ${slug}`;
+  const description = campus?.description || `Explore programs and facilities at Al-Ihsan International Islamic School, ${title} in Maiduguri.`;
+
   return {
-    title: `Campus: ${slug}`,
+    title,
+    description,
+    alternates: {
+      canonical: `/campuses/${slug}`,
+    },
+    openGraph: {
+      title: `${title} | Al-Ihsan International Islamic School`,
+      description,
+    },
   };
 }
 
@@ -29,7 +48,6 @@ export default async function CampusDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Fetch campus-related photos
   const { data: campusPhotos } = await supabase
     .from("media")
     .select("id, title, public_url, alt_text")
@@ -40,8 +58,36 @@ export default async function CampusDetailPage({ params }: PageProps) {
   const address = campus.address || "Maiduguri, Borno State, Nigeria";
   const phone = campus.phone || "+234 800 000 0000";
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://alihsan.sch.ng";
+
+  // Local Campus JSON-LD Schema
+  const campusSchema = {
+    "@context": "https://schema.org",
+    "@type": "School",
+    "name": `${campusName} — Al-Ihsan International Islamic School`,
+    "url": `${baseUrl}/campuses/${slug}`,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": address,
+      "addressLocality": "Maiduguri",
+      "addressRegion": "Borno State",
+      "addressCountry": "NG"
+    },
+    "telephone": phone,
+    "parentOrganization": {
+      "@type": "EducationalOrganization",
+      "name": "Al-Ihsan International Islamic School",
+      "url": baseUrl
+    }
+  };
+
   return (
     <main className="mx-auto max-w-5xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(campusSchema) }}
+      />
+
       <Link
         href="/campuses"
         className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white mb-8"
@@ -72,7 +118,6 @@ export default async function CampusDetailPage({ params }: PageProps) {
           {campus.description || "This campus offers both Conventional and Tahfeez tracks with modern facilities, qualified teaching staff, and a dedicated learning atmosphere."}
         </p>
 
-        {/* Photos Strip */}
         {campusPhotos && campusPhotos.length > 0 && (
           <div className="mt-10 border-t border-white/10 pt-8">
             <div className="flex items-center justify-between mb-4">
