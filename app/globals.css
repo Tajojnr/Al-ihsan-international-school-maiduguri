@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-space: #0a0e14;
+  --color-magenta: #d6127e;
+  --color-signal: #1c7fc1;
+  --color-tahfeez: #1b7a3d;
+  --color-gold: #c9a063;
+
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-space-grotesk);
+  --font-arabic: var(--font-naskh);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--color-space);
+  color: #f8fafc;
+}
+
+::selection {
+  background: #d6127e;
+  color: white;
+}
+
+:focus-visible {
+  outline: 3px solid #c9a063;
+  outline-offset: 4px;
+}
+
+.glass-panel {
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 5%);
+  border-radius: 1.5rem;
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .glass-panel {
+    backdrop-filter: blur(12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
