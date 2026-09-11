@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -14,6 +14,14 @@ const SignUpSchema = z.object({
 const LoginSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
+});
+
+const ForgotPasswordSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email address"),
+});
+
+const ResetPasswordSchema = z.object({
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export type AuthState = {
@@ -77,7 +85,6 @@ export async function loginAction(prevState: AuthState | null, formData: FormDat
     return { error: error.message };
   }
 
-  // Determine redirect based on profile role
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -88,6 +95,56 @@ export async function loginAction(prevState: AuthState | null, formData: FormDat
 
   revalidatePath("/", "layout");
   redirect(redirectUrl);
+}
+
+export async function forgotPasswordAction(prevState: AuthState | null, formData: FormData): Promise<AuthState> {
+  const rawData = {
+    email: formData.get("email"),
+  };
+
+  const parsed = ForgotPasswordSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const supabase = await createClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return {
+    success: "Password reset instructions have been sent to your email address.",
+  };
+}
+
+export async function resetPasswordAction(prevState: AuthState | null, formData: FormData): Promise<AuthState> {
+  const rawData = {
+    password: formData.get("password"),
+  };
+
+  const parsed = ResetPasswordSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/login?message=Password%20successfully%20updated");
 }
 
 export async function signOutAction() {

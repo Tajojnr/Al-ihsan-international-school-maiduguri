@@ -12,13 +12,10 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-12 overflow-hidden">
-      {/* Ambient Glow Backgrounds */}
       <div aria-hidden="true" className="absolute -top-60 -left-60 h-[500px] w-[500px] rounded-full bg-magenta/20 blur-[160px] pointer-events-none" />
       <div aria-hidden="true" className="absolute -bottom-60 -right-60 h-[500px] w-[500px] rounded-full bg-signal/15 blur-[160px] pointer-events-none" />
-      <div aria-hidden="true" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[300px] w-[300px] rounded-full bg-gold/10 blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Brand Header */}
         <div className="text-center mb-8">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-magenta/20 border border-magenta/40 text-magenta mb-4">
             <GraduationCap className="h-7 w-7" />
@@ -34,7 +31,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Glass Card */}
         <div className="glass-panel p-8 border-white/15">
           <h2 className="font-heading text-xl font-bold text-white">
             Welcome back
@@ -66,9 +62,17 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-gold hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <input
                   id="password"
@@ -112,10 +116,6 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
-
-        <p className="text-center text-[10px] text-slate-500 mt-6">
-          Maiduguri, Borno State &middot; Six Campuses
-        </p>
       </div>
     </div>
   );
