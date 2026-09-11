@@ -1,18 +1,19 @@
-import { Metadata } from "next";
+﻿import { Metadata } from "next";
 import Link from "next/link";
 import { Briefcase, ArrowRight, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createJobDraft } from "@/app/actions/applications";
 
 export const metadata: Metadata = {
   title: "Careers & Vacancies",
-  description: "Join the dedicated academic and administrative team at Al-Ihsan International Islamic School.",
+  description: "Join the dedicated academic and administrative team at Al-Ihsan International Islamic School Maiduguri.",
 };
 
 export default async function CareersPage() {
   const supabase = await createClient();
   const { data: jobOpenings } = await supabase
     .from("job_openings")
-    .select("id, title, slug, department, requirements, closing_date")
+    .select("id, title, slug, department, requirements, closing_date, description")
     .eq("is_published", true)
     .order("created_at", { ascending: false });
 
@@ -35,27 +36,40 @@ export default async function CareersPage() {
           jobOpenings.map((job) => (
             <div
               key={job.id}
-              className="glass-panel p-6 flex flex-wrap items-center justify-between gap-4"
+              className="glass-panel p-6 flex flex-wrap items-center justify-between gap-6"
             >
-              <div>
+              <div className="max-w-xl">
                 <span className="text-xs font-semibold uppercase tracking-wider text-magenta">
                   {job.department || "Academic Faculty"}
                 </span>
                 <h2 className="mt-1 font-heading text-xl font-bold text-white">
                   {job.title}
                 </h2>
-                <div className="mt-2 flex items-center gap-2 text-xs text-slate-400">
+                <p className="mt-2 text-xs leading-relaxed text-slate-300">{job.description}</p>
+                {job.requirements && (
+                  <p className="mt-2 text-[11px] text-slate-400">
+                    <strong>Requirements:</strong> {job.requirements}
+                  </p>
+                )}
+                <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
                   <MapPin className="h-3.5 w-3.5 text-gold" />
                   <span>Maiduguri Campuses</span>
                 </div>
               </div>
 
-              <Link
-                href={`/login`}
-                className="inline-flex items-center gap-2 rounded-xl bg-magenta px-5 py-2.5 text-xs font-semibold text-white shadow-md hover:opacity-90"
+              <form
+                action={async () => {
+                  "use server";
+                  await createJobDraft(job.id);
+                }}
               >
-                Apply via Portal <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 rounded-xl bg-magenta px-5 py-3 text-xs font-semibold text-white shadow-lg shadow-magenta/25 hover:opacity-90"
+                >
+                  Apply for this Position <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </form>
             </div>
           ))
         ) : (
@@ -65,16 +79,8 @@ export default async function CareersPage() {
               No Open Vacancies Currently Listed
             </h2>
             <p className="mt-2 text-xs text-slate-400 leading-relaxed">
-              We regularly review qualified candidate profiles for teaching and administrative roles. You can create an applicant account to be notified of upcoming openings.
+              We regularly review candidate profiles for teaching and administrative roles across our six Maiduguri campuses.
             </p>
-            <div className="mt-6">
-              <Link
-                href="/signup"
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/10"
-              >
-                Create Applicant Profile
-              </Link>
-            </div>
           </div>
         )}
       </div>

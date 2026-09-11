@@ -34,7 +34,7 @@ export async function createAdmissionDraft(offeringId: string) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/portal/admissions/new");
   }
 
   const { data, error } = await supabase
@@ -133,7 +133,6 @@ export async function submitAdmissionAction(applicationId: string) {
     return { error: result.error || "Submission failed." };
   }
 
-  // Trigger confirmation email asynchronously
   (async () => {
     try {
       const { data: appData } = await supabase
@@ -174,14 +173,33 @@ export async function submitAdmissionAction(applicationId: string) {
   return { success: true, referenceNumber: result.reference_number };
 }
 
+// -------------------------------------------------------------
+// Job Applications (With duplicate prevention & clean redirects)
+// -------------------------------------------------------------
+
 export async function createJobDraft(jobOpeningId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/login?next=/careers");
   }
 
+  // Check if applicant already has an active draft or submission for this vacancy
+  const { data: existing } = await supabase
+    .from("job_applications")
+    .select("id")
+    .eq("applicant_id", user.id)
+    .eq("job_opening_id", jobOpeningId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    redirect(`/portal/careers/${existing.id}`);
+  }
+
+  // Create new draft
   const { data, error } = await supabase
     .from("job_applications")
     .insert({

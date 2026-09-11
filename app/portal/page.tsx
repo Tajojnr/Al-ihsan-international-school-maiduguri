@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
 import Link from "next/link";
 import { PlusCircle, ArrowRight, BookOpen, Briefcase } from "lucide-react";
@@ -17,6 +17,7 @@ interface JobAppSummary {
   reference_number: string | null;
   status: string;
   created_at: string;
+  job_openings: { title: string; department: string | null } | { title: string; department: string | null }[] | null;
 }
 
 export default async function PortalDashboard() {
@@ -38,11 +39,20 @@ export default async function PortalDashboard() {
 
   const { data: jobAppsData } = await supabase
     .from("job_applications")
-    .select("id, reference_number, status, created_at")
+    .select(`
+      id,
+      reference_number,
+      status,
+      created_at,
+      job_openings (
+        title,
+        department
+      )
+    `)
     .order("created_at", { ascending: false });
 
-  const admissionApps = (admissionAppsData || []) as AdmissionAppSummary[];
-  const jobApps = (jobAppsData || []) as JobAppSummary[];
+  const admissionApps = (admissionAppsData || []) as unknown as AdmissionAppSummary[];
+  const jobApps = (jobAppsData || []) as unknown as JobAppSummary[];
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -118,6 +128,8 @@ export default async function PortalDashboard() {
                       className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                         app.status === "draft"
                           ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                          : app.status === "accepted"
+                          ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
                           : "bg-signal/15 text-signal border border-signal/30"
                       }`}
                     >
@@ -148,35 +160,56 @@ export default async function PortalDashboard() {
                 href="/careers"
                 className="text-xs font-semibold text-gold hover:underline"
               >
-                Browse Openings
+                + Browse Openings
               </Link>
             </div>
             <p className="mt-1 text-xs text-slate-400">
-              Your faculty and staff applications.
+              Your submitted and draft employment applications.
             </p>
 
             <div className="mt-6 divide-y divide-white/10">
               {jobApps.length > 0 ? (
-                jobApps.map((app) => (
-                  <div key={app.id} className="py-3.5 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-slate-300">
-                        Ref: {app.reference_number || "Draft"}
-                      </p>
-                      <p className="text-[10px] text-slate-500">
-                        Submitted: {new Date(app.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
+                jobApps.map((app) => {
+                  const job = Array.isArray(app.job_openings) ? app.job_openings[0] : app.job_openings;
+                  return (
+                    <Link
+                      key={app.id}
+                      href={`/portal/careers/${app.id}`}
+                      className="py-3.5 flex items-center justify-between group hover:bg-white/5 px-2 rounded-lg transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium text-sm text-white group-hover:text-gold transition-colors">
+                          {job?.title || "Employment Application"}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          {app.reference_number ? `Ref: ${app.reference_number}` : "Draft (Not submitted)"}
+                        </p>
+                      </div>
 
-                    <span className="capitalize text-xs font-semibold text-signal">
-                      {app.status}
-                    </span>
-                  </div>
-                ))
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                          app.status === "draft"
+                            ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
+                            : app.status === "shortlisted" || app.status === "hired"
+                            ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                            : "bg-signal/15 text-signal border border-signal/30"
+                        }`}
+                      >
+                        {app.status}
+                      </span>
+                    </Link>
+                  );
+                })
               ) : (
-                <p className="py-6 text-xs text-slate-500 text-center">
-                  No job applications submitted yet.
-                </p>
+                <div className="py-6 text-center">
+                  <p className="text-xs text-slate-500">No job applications submitted yet.</p>
+                  <Link
+                    href="/careers"
+                    className="inline-block mt-3 text-xs font-semibold text-magenta hover:underline"
+                  >
+                    View Open Vacancies &rarr;
+                  </Link>
+                </div>
               )}
             </div>
           </div>
