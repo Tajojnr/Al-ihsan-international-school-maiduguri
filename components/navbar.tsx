@@ -17,8 +17,8 @@ const navLinks = [
 ];
 
 interface SiteSettings {
-  main_phone: string | null;
-  whatsapp: string | null;
+  main_phone?: string | null;
+  whatsapp?: string | null;
 }
 
 export function Navbar({
@@ -28,7 +28,7 @@ export function Navbar({
 }: {
   logoUrl: string | null;
   logoAlt: string;
-  settings: SiteSettings | null;
+  settings?: SiteSettings | null;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
