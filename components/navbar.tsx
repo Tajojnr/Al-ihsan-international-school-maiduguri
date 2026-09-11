@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, GraduationCap } from "lucide-react";
+import { Menu, X, GraduationCap, Phone } from "lucide-react";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -16,7 +16,20 @@ const navLinks = [
   { name: "Contact", href: "/contact" },
 ];
 
-export function Navbar({ logoUrl, logoAlt }: { logoUrl: string | null; logoAlt: string }) {
+interface SiteSettings {
+  main_phone: string | null;
+  whatsapp: string | null;
+}
+
+export function Navbar({
+  logoUrl,
+  logoAlt,
+  settings,
+}: {
+  logoUrl: string | null;
+  logoAlt: string;
+  settings: SiteSettings | null;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
@@ -24,29 +37,24 @@ export function Navbar({ logoUrl, logoAlt }: { logoUrl: string | null; logoAlt: 
     return null;
   }
 
+  const phone = settings?.main_phone || "";
+  const whatsapp = settings?.whatsapp || "";
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-space/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-3">
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoUrl}
-              alt={logoAlt}
-              className="h-11 w-11 rounded-xl object-contain border border-white/10 bg-white/5 p-1"
-            />
+            <img src={logoUrl} alt={logoAlt} className="h-11 w-11 rounded-xl object-contain border border-white/10 bg-white/5 p-1" />
           ) : (
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-magenta/20 border border-magenta/40 text-magenta">
               <GraduationCap className="h-6 w-6" />
             </div>
           )}
           <div>
-            <span className="font-heading text-lg font-bold tracking-tight text-white block leading-tight">
-              Al-Ihsan
-            </span>
-            <span className="font-arabic text-xs text-gold block leading-tight">
-              مَدْرَسَةُ الإِحْسَانِ الإِسْلَامِيَّةِ
-            </span>
+            <span className="font-heading text-lg font-bold tracking-tight text-white block leading-tight">Al-Ihsan</span>
+            <span className="font-arabic text-xs text-gold block leading-tight">مَدْرَسَةُ الإِحْسَانِ الإِسْلَامِيَّةِ</span>
           </div>
         </Link>
 
@@ -58,9 +66,7 @@ export function Navbar({ logoUrl, logoAlt }: { logoUrl: string | null; logoAlt: 
                 key={link.name}
                 href={link.href}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                  isActive
-                    ? "bg-magenta text-white shadow-md"
-                    : "text-slate-300 hover:text-white hover:bg-white/5"
+                  isActive ? "bg-magenta text-white shadow-md" : "text-slate-300 hover:text-white hover:bg-white/5"
                 }`}
               >
                 {link.name}
@@ -70,16 +76,19 @@ export function Navbar({ logoUrl, logoAlt }: { logoUrl: string | null; logoAlt: 
         </nav>
 
         <div className="hidden sm:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
-          >
+          {phone && (
+            <a
+              href={`tel:${phone}`}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/10"
+            >
+              <Phone className="h-3.5 w-3.5 text-gold" />
+              <span className="hidden md:inline">{phone}</span>
+            </a>
+          )}
+          <Link href="/login" className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white">
             Portal Login
           </Link>
-          <Link
-            href="/admissions"
-            className="rounded-xl bg-magenta px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-magenta/25 transition-opacity hover:opacity-90"
-          >
+          <Link href="/admissions" className="rounded-xl bg-magenta px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-magenta/25 transition-opacity hover:opacity-90">
             Apply Now
           </Link>
         </div>
@@ -103,27 +112,28 @@ export function Navbar({ logoUrl, logoAlt }: { logoUrl: string | null; logoAlt: 
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={`rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
-                  pathname === link.href
-                    ? "bg-magenta text-white"
-                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                  pathname === link.href ? "bg-magenta text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 {link.name}
               </Link>
             ))}
             <div className="mt-4 flex flex-col gap-2 pt-4 border-t border-white/10">
-              <Link
-                href="/login"
-                onClick={() => setMobileOpen(false)}
-                className="w-full text-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200"
-              >
+              {whatsapp && (
+                <a
+                  href={whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full text-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-300"
+                >
+                  Chat on WhatsApp
+                </a>
+              )}
+              <Link href="/login" onClick={() => setMobileOpen(false)} className="w-full text-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200">
                 Applicant Portal
               </Link>
-              <Link
-                href="/admissions"
-                onClick={() => setMobileOpen(false)}
-                className="w-full text-center rounded-xl bg-magenta px-4 py-3 text-sm font-semibold text-white"
-              >
+              <Link href="/admissions" onClick={() => setMobileOpen(false)} className="w-full text-center rounded-xl bg-magenta px-4 py-3 text-sm font-semibold text-white">
                 Apply for Admission
               </Link>
             </div>

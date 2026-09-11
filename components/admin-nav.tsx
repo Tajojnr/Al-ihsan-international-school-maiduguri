@@ -10,6 +10,7 @@ import {
   Briefcase,
   Image as ImageIcon,
   FileText,
+  Settings,
   LogOut,
 } from "lucide-react";
 import { signOutAction } from "@/app/actions/auth";
@@ -22,6 +23,7 @@ const adminLinks = [
   { name: "Campuses", href: "/admin/campuses", icon: Building2 },
   { name: "Intake Cycles", href: "/admin/cycles", icon: CalendarDays },
   { name: "Careers", href: "/admin/careers", icon: Briefcase },
+  { name: "Site Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export function AdminNav() {
