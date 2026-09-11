@@ -1,6 +1,7 @@
 ﻿import { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { MapPin, Phone, Mail, Clock, MessageCircle, Facebook, Instagram, Twitter, Youtube, Send } from "lucide-react";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { WhatsAppIcon, FacebookIcon, InstagramIcon, TwitterXIcon, YoutubeIcon, TelegramIcon } from "@/components/social-icons";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -21,12 +22,12 @@ export default async function ContactPage() {
   const address = settings?.main_address || "Maiduguri, Borno State, Nigeria";
 
   const socials = [
-    { key: "whatsapp", url: settings?.whatsapp, icon: MessageCircle, label: "WhatsApp", color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20" },
-    { key: "facebook", url: settings?.facebook, icon: Facebook, label: "Facebook", color: "text-blue-400 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20" },
-    { key: "instagram", url: settings?.instagram, icon: Instagram, label: "Instagram", color: "text-pink-400 border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20" },
-    { key: "twitter", url: settings?.twitter, icon: Twitter, label: "Twitter / X", color: "text-sky-400 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20" },
-    { key: "youtube", url: settings?.youtube, icon: Youtube, label: "YouTube", color: "text-red-400 border-red-500/30 bg-red-500/10 hover:bg-red-500/20" },
-    { key: "telegram", url: settings?.telegram, icon: Send, label: "Telegram", color: "text-sky-300 border-sky-400/30 bg-sky-400/10 hover:bg-sky-400/20" },
+    { key: "whatsapp", url: settings?.whatsapp, icon: WhatsAppIcon, label: "WhatsApp", color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20" },
+    { key: "facebook", url: settings?.facebook, icon: FacebookIcon, label: "Facebook", color: "text-blue-400 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20" },
+    { key: "instagram", url: settings?.instagram, icon: InstagramIcon, label: "Instagram", color: "text-pink-400 border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20" },
+    { key: "twitter", url: settings?.twitter, icon: TwitterXIcon, label: "Twitter / X", color: "text-sky-400 border-sky-500/30 bg-sky-500/10 hover:bg-sky-500/20" },
+    { key: "youtube", url: settings?.youtube, icon: YoutubeIcon, label: "YouTube", color: "text-red-400 border-red-500/30 bg-red-500/10 hover:bg-red-500/20" },
+    { key: "telegram", url: settings?.telegram, icon: TelegramIcon, label: "Telegram", color: "text-sky-300 border-sky-400/30 bg-sky-400/10 hover:bg-sky-400/20" },
   ].filter((s) => s.url && s.url.trim() !== "");
 
   return (
